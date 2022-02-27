@@ -1,0 +1,42 @@
+name: Sample CI
+on:
+  workflow_dispatch:
+    inputs:
+       client_payload:
+          description: The Client payload
+          required: true
+jobs:
+  Linter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Create check
+        run: |
+          CHECK_ID=$(curl -X POST https://my-backend.com/check --data '{"installation_id": ${{ fromJSON(github.event.inputs.client_payload).installation_id }}, "owner": "${{ fromJSON(github.event.inputs.client_payload).owner }}", "repo": "${{ fromJSON(github.event.inputs.client_payload).repo }}", "head_sha": "${{ fromJSON(github.event.inputs.client_payload).head_sha }}", "check_name": "Linter" }')
+          echo "CHECK_RUN_ID=$CHECK_ID" >> $GITHUB_ENV
+      - name: Checkout original repository
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ fromJSON(github.event.inputs.client_payload).full_repo_path }}
+          ref: ${{ fromJSON(github.event.inputs.client_payload).head_sha }}
+          fetch-depth: 0
+          token: ${{ fromJSON(github.event.inputs.client_payload).github_token }}
+          path: "code/"
+      - name: Setup flake8 annotations
+        uses: rbialon/flake8-annotations@v1
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 ./code --count --show-source --statistics
+      - if: failure()
+        run: echo "RESULT=failure" >> $GITHUB_ENV
+      - if: success()
+        run: echo "RESULT=success" >> $GITHUB_ENV
+      - name: Update failed check
+        if: always()
+        run: |
+          curl -X PUT https://my-backend.com/check/$CHECK_RUN_ID --data '{"installation_id": ${{ fromJSON(github.event.inputs.client_payload).installation_id }}, "owner": "${{ fromJSON(github.event.inputs.client_payload).owner }}", "repo": "${{ fromJSON(github.event.inputs.client_payload).repo }}", "head_sha": "${{ fromJSON(github.event.inputs.client_payload).head_sha }}", "conclusion": "${{ env.RESULT }}", "check_name": "Linter" }'
