@@ -1,6 +1,6 @@
 # Centralized CI
 
-This repository is a companion to the talk given at Worldwide Software Architect 2022: "FORGET MONO VS. MULTI-REPO: BUILDING CENTRALIZED GIT WORKFLOWS IN PYTHON"
+This repository is a companion to the talk given at Voxxed Days Bucharest 2022: "FORGET MONO VS. MULTI-REPO: BUILDING CENTRALIZED GIT WORKFLOWS IN PYTHON"
 
 Create a Github application and add the following environment variables to your environment:
 ``GH_SECRET``: The secret key from your GitHub App
@@ -9,7 +9,7 @@ Create a Github application and add the following environment variables to your 
 
 To allow inbound traffic:
 ```
-ngrok http --region=eu --hostname=<domain>.ngrok.io 800
+ngrok http -subdomain=<subdomain> 8000
 ```
 
 Run
