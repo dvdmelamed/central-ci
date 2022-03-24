@@ -15,4 +15,4 @@ ngrok http -subdomain=<subdomain> 8000
 Run
 -----
 Using the following command:
-adev runserver webservice
+cd src && adev runserver
