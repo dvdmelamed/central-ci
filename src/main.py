@@ -55,6 +55,7 @@ async def handle_pr(event, gh, *args, **kwargs):
         },
         oauth_token=installation_access_token["token"]
     )
+    print(response)
     return response
 
 

@@ -1,0 +1,28 @@
+name: Sample GitHub Actions
+on:
+  workflow_dispatch:
+    inputs:
+       client_payload:
+          description: The Client payload
+          required: true
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Checkout original repository
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ fromJSON(github.event.inputs.client_payload).full_repo_path }}
+          ref: ${{ fromJSON(github.event.inputs.client_payload).head_sha }}
+          fetch-depth: 0
+          token: ${{ fromJSON(github.event.inputs.client_payload).github_token }}
+          path: "code/"
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 ./code --count --show-source --statistics
